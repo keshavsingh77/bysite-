@@ -4,6 +4,7 @@ import { fetchPostById } from '../services/bloggerService';
 import { BloggerPost } from '../types';
 import AdUnit from '../components/AdUnit';
 import Sidebar from '../components/Sidebar';
+import LinkProtector from '../components/LinkProtector';
 
 interface PostPageProps {
   postId: string;
@@ -14,6 +15,7 @@ const PostPage: React.FC<PostPageProps> = ({ postId, categories }) => {
   const [post, setPost] = useState<BloggerPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const loadPost = async () => {
@@ -26,7 +28,6 @@ const PostPage: React.FC<PostPageProps> = ({ postId, categories }) => {
       try {
         setLoading(true);
         setError(null);
-        console.log("Loading post with ID:", postId);
         const data = await fetchPostById(postId);
         if (data) {
           setPost(data);
@@ -59,12 +60,34 @@ const PostPage: React.FC<PostPageProps> = ({ postId, categories }) => {
         </svg>
       </div>
       <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tighter">{error || "Article not found"}</h2>
-      <p className="text-gray-500 mb-8 max-w-sm mx-auto font-medium">This story might have been moved or the ID is incorrect. Try returning to the home feed.</p>
-      <a href="#/" className="inline-block px-10 py-4 bg-primary text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-primary/20">
-        Return to Home
-      </a>
+      <p className="text-gray-500 mb-8 max-w-sm mx-auto font-medium">This story might have been moved or the ID is incorrect.</p>
+      <a href="#/" className="btn-primary inline-flex">Return to Home</a>
     </div>
   );
+
+  // If not verified, show the Link Protector
+  if (!isVerified) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-12">
+        <div className="text-center space-y-4 mb-10">
+          <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter line-clamp-2">
+            Verifying Access: {post.title}
+          </h1>
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Please follow the steps below to reveal content</p>
+        </div>
+        
+        {/* Ad placements around the verification area */}
+        <AdUnit />
+        
+        <LinkProtector onComplete={() => {
+            setIsVerified(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }} />
+
+        <AdUnit />
+      </div>
+    );
+  }
 
   const date = new Date(post.published).toLocaleDateString('en-US', {
     month: 'long',
@@ -73,7 +96,7 @@ const PostPage: React.FC<PostPageProps> = ({ postId, categories }) => {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-12">
+    <div className="flex flex-col lg:flex-row gap-12 animate-in fade-in duration-1000">
       <article className="flex-grow max-w-full">
         <header className="mb-10">
           <div className="flex items-center gap-2 mb-6">
@@ -87,7 +110,7 @@ const PostPage: React.FC<PostPageProps> = ({ postId, categories }) => {
             {post.title}
           </h1>
           <div className="flex items-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4 border-2 border-white shadow-sm">
+            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4 border-2 border-white shadow-sm overflow-hidden">
                <img src="https://ui-avatars.com/api/?name=Creative+Mind&background=2563eb&color=fff" alt="Creative Mind" className="rounded-full" />
             </div>
             <div>
@@ -109,20 +132,9 @@ const PostPage: React.FC<PostPageProps> = ({ postId, categories }) => {
           <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] text-center mb-6">Article Continued Below</p>
           <AdUnit />
         </div>
-
-        <div className="mt-16 bg-gray-900 p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center text-center md:text-left gap-8 shadow-2xl">
-          <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center border-4 border-white/10 shadow-lg shrink-0">
-             <img src="https://ui-avatars.com/api/?name=Creative+Mind&background=2563eb&color=fff" alt="Creative Mind" className="rounded-full" />
-          </div>
-          <div>
-            <p className="text-primary text-xs font-black uppercase tracking-[0.2em] mb-2">Author Profile</p>
-            <h4 className="text-2xl font-black text-white mb-3 tracking-tight">Creative Mind</h4>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-lg">Dedicated to bringing you the most accurate and up-to-date professional insights. Our goal is to provide value through high-quality research and expert analysis daily.</p>
-          </div>
-        </div>
       </article>
 
-      <Sidebar categories={categories} />
+      <Sidebar categories={categories} blogInfo={{ description: "Access verified content provided by Daily Update. High-quality professional reporting." } as any} />
     </div>
   );
 };
