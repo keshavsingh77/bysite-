@@ -1,56 +1,45 @@
 
 import React from 'react';
 import { FOOTER_LINKS } from '../constants';
-import { BloggerBlog } from '../types';
 
-interface FooterProps {
-  blogInfo?: BloggerBlog;
-}
-
-const Footer: React.FC<FooterProps> = ({ blogInfo }) => {
+const Footer: React.FC = () => {
   return (
-    <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">B</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-gray-900">{blogInfo?.name || "BloggerCMS"}</span>
-            </div>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-sm">
-              {blogInfo?.description || "Providing professional insights and high-quality content daily. Stay ahead with our comprehensive analysis and editorial stories."}
-            </p>
+    <footer className="bg-gray-50 pt-20 pb-12">
+      <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="mb-10 flex flex-col items-center">
+          <div className="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center shadow-lg mb-6">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
           </div>
-          
-          <div className="col-span-1">
-            <h5 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Legal & Compliance</h5>
-            <ul className="space-y-4">
-              {FOOTER_LINKS.map(link => (
-                <li key={link.path}>
-                  <a href={`#${link.path}`} className="text-gray-600 hover:text-blue-600 text-sm transition-colors">{link.name}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="col-span-1">
-            <h5 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Connect With Us</h5>
-            <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-400 hover:text-white transition-all">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-              </a>
-            </div>
-            <p className="mt-8 text-xs text-gray-400">© {new Date().getFullYear()} {blogInfo?.name || "BloggerCMS"}. All rights reserved.</p>
-          </div>
+          <h3 className="text-3xl font-black text-gray-900 mb-4">InsightHub</h3>
+          <p className="text-gray-500 max-w-sm font-medium leading-relaxed">
+            Delivering modern perspectives through high-performance headless architecture.
+          </p>
         </div>
-        
-        <div className="border-t border-gray-100 pt-8 text-center">
-          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-[0.2em]">Designed for Performance & AdSense Compliance</p>
+
+        <div className="flex justify-center space-x-8 mb-12">
+          {['globe', 'chat', 'at-symbol'].map(icon => (
+            <button key={icon} className="p-3 text-gray-400 hover:text-primary transition-all">
+              <div className="w-6 h-6 border-2 border-current rounded-full"></div>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 mb-12 text-[11px] font-black uppercase tracking-[0.15em] text-gray-500">
+          <a href="#/" className="hover:text-primary transition-colors">Home</a>
+          {FOOTER_LINKS.map(link => (
+            <a key={link.path} href={`#${link.path}`} className="hover:text-primary transition-colors">{link.name}</a>
+          ))}
+        </div>
+
+        <div className="pt-8 border-t border-gray-200">
+          <p className="text-[10px] font-bold text-gray-400 tracking-wider">
+            © 2024 INSIGHTHUB BLOG SERVICES. ALL RIGHTS RESERVED.
+          </p>
+          <p className="text-[10px] text-gray-300 mt-2 uppercase tracking-[0.2em]">
+            Powered by Blogger API (ID: 6924208631263306852)
+          </p>
         </div>
       </div>
     </footer>

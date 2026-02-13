@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NAVBAR_LINKS } from '../constants';
 import { BloggerBlog } from '../types';
 
@@ -10,97 +10,43 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ blogInfo, categories }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [showCategories, setShowCategories] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-3' : 'bg-white/80 backdrop-blur-md py-5'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center">
-            <a href="#/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">B</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-gray-900 truncate max-w-[200px] md:max-w-none">
-                {blogInfo?.name || "BloggerCMS"}
-              </span>
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-100 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <a href="#/" className="flex items-center space-x-2">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <span className="text-2xl font-extrabold tracking-tight text-gray-900">InsightHub</span>
+        </a>
+
+        <div className="hidden md:flex items-center space-x-6 text-sm font-semibold">
+          {NAVBAR_LINKS.map(link => (
+            <a key={link.path} href={`#${link.path}`} className="text-gray-600 hover:text-primary transition-colors">
+              {link.name}
             </a>
-          </div>
+          ))}
+        </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#/" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-            <div className="relative">
-              <button 
-                onClick={() => setShowCategories(!showCategories)}
-                className="flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors focus:outline-none"
-              >
-                Categories
-                <svg className={`ml-1 w-4 h-4 transition-transform ${showCategories ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {showCategories && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white shadow-xl rounded-lg border border-gray-100 py-2 z-50">
-                  {categories.slice(0, 8).map(cat => (
-                    <a key={cat} href={`#/category/${encodeURIComponent(cat)}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
-                      {cat}
-                    </a>
-                  ))}
-                  {categories.length > 8 && (
-                    <div className="px-4 py-2 border-t text-[10px] text-gray-400 font-bold uppercase tracking-widest">More Categories Available</div>
-                  )}
-                </div>
-              )}
-            </div>
-            {NAVBAR_LINKS.filter(l => l.name !== 'Home').map(link => (
-              <a key={link.path} href={`#${link.path}`} className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                {link.name}
-              </a>
-            ))}
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-700 focus:outline-none p-2">
-              {isOpen ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-              )}
-            </button>
-          </div>
-        </nav>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b shadow-lg py-4 px-6 space-y-4 animate-in fade-in slide-in-from-top-2">
-            <a href="#/" onClick={() => setIsOpen(false)} className="block text-base font-medium text-gray-900">Home</a>
-            <div className="space-y-2">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Categories</p>
-              <div className="grid grid-cols-2 gap-2">
-                {categories.slice(0, 6).map(cat => (
-                  <a key={cat} href={`#/category/${encodeURIComponent(cat)}`} onClick={() => setIsOpen(false)} className="text-sm text-gray-700">
-                    {cat}
-                  </a>
-                ))}
-              </div>
-            </div>
-            {NAVBAR_LINKS.filter(l => l.name !== 'Home').map(link => (
-              <a key={link.path} href={`#${link.path}`} onClick={() => setIsOpen(false)} className="block text-base font-medium text-gray-900">
-                {link.name}
-              </a>
-            ))}
-          </div>
-        )}
+        <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-gray-900 focus:outline-none">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
+
+      {isOpen && (
+        <div className="md:hidden bg-white border-t p-4 space-y-3 absolute w-full shadow-lg">
+          {NAVBAR_LINKS.map(link => (
+            <a key={link.path} href={`#${link.path}`} onClick={() => setIsOpen(false)} className="block text-gray-900 font-medium">
+              {link.name}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
   );
 };

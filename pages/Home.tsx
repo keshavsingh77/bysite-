@@ -1,10 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { fetchPosts, extractFirstImage, extractExcerpt } from '../services/bloggerService';
-import { BloggerPost } from '../types';
+import { BloggerPost, BloggerBlog } from '../types';
 import PostCard from '../components/PostCard';
-import Sidebar from '../components/Sidebar';
-import { BloggerBlog } from '../types';
+import AdUnit from '../components/AdUnit';
 
 interface HomeProps {
   blogInfo?: BloggerBlog;
@@ -14,22 +13,16 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ blogInfo, categories }) => {
   const [posts, setPosts] = useState<BloggerPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     loadPosts();
   }, []);
 
-  const loadPosts = async (token?: string) => {
+  const loadPosts = async () => {
     try {
       setLoading(true);
-      const data = await fetchPosts(token);
-      if (token) {
-        setPosts(prev => [...prev, ...data.items]);
-      } else {
-        setPosts(data.items);
-      }
-      setNextPageToken(data.nextPageToken);
+      const data = await fetchPosts();
+      setPosts(data.items || []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -37,85 +30,97 @@ const Home: React.FC<HomeProps> = ({ blogInfo, categories }) => {
     }
   };
 
-  const featuredPost = posts[0];
-  const gridPosts = posts.slice(1);
+  const latestPost = posts[0];
+  const trendingPosts = posts.slice(1, 5);
 
   if (loading && posts.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-12">
-      {/* Hero Section */}
-      {featuredPost && (
-        <section className="relative overflow-hidden rounded-2xl bg-gray-900 min-h-[500px] flex items-center">
-          <div className="absolute inset-0 z-0">
-            <img 
-              src={featuredPost.images?.[0]?.url || extractFirstImage(featuredPost.content) || `https://picsum.photos/seed/${featuredPost.id}/1200/800`} 
-              alt={featuredPost.title}
-              className="w-full h-full object-cover opacity-50"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-          </div>
-          <div className="relative z-10 max-w-4xl mx-auto px-8 py-20 text-center text-white">
-            {featuredPost.labels && featuredPost.labels.length > 0 && (
-              <span className="inline-block px-3 py-1 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider rounded mb-6">
-                Featured: {featuredPost.labels[0]}
+      {/* Featured Hero Section */}
+      {latestPost && (
+        <section className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm">
+          <div className="flex flex-col">
+            <div className="relative w-full aspect-[4/3] md:aspect-[21/9]">
+              <img 
+                src={latestPost.images?.[0]?.url || extractFirstImage(latestPost.content) || `https://picsum.photos/seed/${latestPost.id}/1200/600`}
+                className="w-full h-full object-cover"
+                alt={latestPost.title}
+              />
+              <span className="absolute top-6 left-6 bg-primary text-white text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-lg">
+                Latest Post
               </span>
-            )}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-              {featuredPost.title}
-            </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed">
-              {extractExcerpt(featuredPost.content, 180)}
-            </p>
-            <a 
-              href={`#/post/${featuredPost.id}`} 
-              className="inline-block px-8 py-4 bg-white text-gray-900 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all transform hover:-translate-y-1 shadow-lg"
-            >
-              Read Full Article
-            </a>
+            </div>
+            <div className="p-8 md:p-12">
+              <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-[1.1]">
+                {latestPost.title}
+              </h1>
+              <p className="text-lg text-gray-500 mb-8 leading-relaxed line-clamp-2 md:line-clamp-none">
+                {extractExcerpt(latestPost.content, 200)}
+              </p>
+              <div className="flex flex-wrap items-center justify-between gap-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">Editorial Team</p>
+                    <p className="text-xs font-semibold text-gray-400">Head of Content</p>
+                  </div>
+                </div>
+                <a href={`#/post/${latestPost.id}`} className="btn-primary w-full md:w-auto px-10">
+                  Read More
+                </a>
+              </div>
+            </div>
           </div>
         </section>
       )}
 
-      {/* Main Content Layout */}
-      <div className="flex flex-col lg:flex-row gap-12">
-        <div className="flex-grow">
-          <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Latest Insights</h2>
-            <div className="h-1 w-20 bg-blue-600 rounded-full"></div>
-          </div>
+      {/* AdSense Unit */}
+      <div className="max-w-4xl mx-auto px-4">
+        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] text-center mb-4">Sponsored Content</p>
+        <AdUnit className="bg-white border border-dashed border-gray-200 p-8 text-center text-gray-300 rounded-2xl" />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {gridPosts.map(post => (
-              <PostCard key={post.id} post={post} />
-            ))}
+      {/* Trending Stories */}
+      <section>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <div className="w-1.5 h-8 bg-primary rounded-full mr-4"></div>
+            <h2 className="text-2xl font-black text-gray-900">Trending Stories</h2>
           </div>
-
-          {nextPageToken && (
-            <div className="mt-12 text-center">
-              <button 
-                onClick={() => loadPosts(nextPageToken)}
-                className="px-8 py-3 border-2 border-blue-600 text-blue-600 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50"
-                disabled={loading}
-              >
-                {loading ? 'Loading More...' : 'Load More Articles'}
-              </button>
-            </div>
-          )}
+          <a href="#/" className="text-sm font-bold text-primary flex items-center hover:underline">
+            View All
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
         </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+          {trendingPosts.map(post => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      </section>
 
-        {/* Sidebar */}
-        <Sidebar 
-          blogInfo={blogInfo} 
-          categories={categories} 
-          recentPosts={posts.slice(0, 5).map(p => ({ id: p.id, title: p.title }))}
-        />
+      {/* Load More Section */}
+      <div className="pt-4 pb-12">
+        <button className="w-full py-5 border-2 border-primary/10 text-primary font-black rounded-2xl hover:bg-primary hover:text-white transition-all flex items-center justify-center">
+          Load More Articles
+          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
     </div>
   );
