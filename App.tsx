@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { fetchBlogInfo, fetchPosts } from './services/bloggerService';
 import { BloggerBlog, PageType } from './types';
 import Header from './components/Header';
@@ -42,18 +42,6 @@ const AppContent: React.FC = () => {
     }
   }, [blogInfo, location]);
 
-  const getPostIdFromHash = () => {
-    const hash = window.location.hash;
-    const match = hash.match(/#\/post\/(.+)/);
-    return match ? match[1] : '';
-  };
-
-  const getLabelFromHash = () => {
-    const hash = window.location.hash;
-    const match = hash.match(/#\/category\/(.+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header blogInfo={blogInfo} categories={categories} />
@@ -67,9 +55,8 @@ const AppContent: React.FC = () => {
           <Route path="/disclaimer" element={<StandardPage type={PageType.DISCLAIMER} />} />
           <Route path="/terms" element={<StandardPage type={PageType.TERMS} />} />
           
-          {/* Post and Category routes manually handled via dynamic checks if needed, but standard routing is preferred */}
-          <Route path="/post/:id" element={<PostRoute categories={categories} />} />
-          <Route path="/category/:label" element={<CategoryRoute categories={categories} />} />
+          <Route path="/post/:id" element={<PostRouteWrapper categories={categories} />} />
+          <Route path="/category/:label" element={<CategoryRouteWrapper categories={categories} />} />
           
           <Route path="*" element={<Home blogInfo={blogInfo} categories={categories} />} />
         </Routes>
@@ -80,17 +67,14 @@ const AppContent: React.FC = () => {
   );
 };
 
-// Helper wrappers to handle params without using complex hooks if needed
-const PostRoute = ({ categories }: { categories: string[] }) => {
-  const hash = window.location.hash;
-  const id = hash.split('/').pop() || '';
-  return <PostPage postId={id} categories={categories} />;
+const PostRouteWrapper = ({ categories }: { categories: string[] }) => {
+  const { id } = useParams<{ id: string }>();
+  return <PostPage postId={id || ''} categories={categories} />;
 };
 
-const CategoryRoute = ({ categories }: { categories: string[] }) => {
-  const hash = window.location.hash;
-  const label = decodeURIComponent(hash.split('/').pop() || '');
-  return <CategoryPage label={label} categories={categories} />;
+const CategoryRouteWrapper = ({ categories }: { categories: string[] }) => {
+  const { label } = useParams<{ label: string }>();
+  return <CategoryPage label={label || ''} categories={categories} />;
 };
 
 const App: React.FC = () => {
